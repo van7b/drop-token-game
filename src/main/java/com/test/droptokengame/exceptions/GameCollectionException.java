@@ -16,7 +16,7 @@ public class GameCollectionException extends Exception {
 	
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public static String GameNotFoundException(String gameId) {
-		return "Game with "+gameId+" not found!";
+		return "Game with "+gameId+" not found! or Game has already done";
 	}
 	
 	@ResponseStatus(HttpStatus.NOT_FOUND)
@@ -32,6 +32,11 @@ public class GameCollectionException extends Exception {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public static String ColumnAlreadyFilledException(Integer column) {
 		return "Column number with "+column+" is already filled";
+	}
+	
+	@ResponseStatus(HttpStatus.CONFLICT)
+	public static String InvalidPlayerTurnException(String player) {
+		return "Not your turn "+player;
 	}
 	
 	@ResponseStatus(HttpStatus.NOT_FOUND)

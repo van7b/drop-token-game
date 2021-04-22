@@ -172,7 +172,6 @@ public class GameServiceImpl implements GameService {
 					move = postAMove(new Move(), game, gameId, game.getPlayer2());
 				}
 				
-				populateBoard(game, move);
 				count++;
 				gameRepository.save(game);
 				checkWinner(game);
@@ -251,19 +250,6 @@ public class GameServiceImpl implements GameService {
 			gameRepository.save(game);
 			return;
 		}
-	}
-
-	private void populateBoard(Game game, Move move) {
-		String board[][] = game.getBoard();
-		for(int i=game.getNoOfRows()-1;i>=0;i--) {
-			if(board[i][move.getColumn()] == null) {
-				board[i][move.getColumn()] = move.getPlayerId();
-				game.setBoard(board);
-				gameRepository.save(game);
-				break;
-			}
-		}
-		
 	}
 	
 }

@@ -23,5 +23,4 @@ public interface GameService {
 
 	public DeleteResponse deletePlayerId(Game game, String gameId, String playerId) throws GameCollectionException;
 	
-	public void playGame(Game game, String gameId) throws GameCollectionException;
 }

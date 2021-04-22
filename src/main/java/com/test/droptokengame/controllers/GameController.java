@@ -96,17 +96,5 @@ public class GameController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
-	
-	@PostMapping("/play/{gameId}")
-	public ResponseEntity<?> playGame(@RequestBody Game game, @PathVariable String gameId){
-		try {
-			gameService.playGame(game, gameId);
-			String json = new ObjectMapper().writeValueAsString(game);
-			Game g = new ObjectMapper().readValue(json, Game.class);
-			return new ResponseEntity<>(gameService.getStateOfTheGame(gameId), HttpStatus.OK);
-		} catch(Exception e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-		}
-	}
 
 }

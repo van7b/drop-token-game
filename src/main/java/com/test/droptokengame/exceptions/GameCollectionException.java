@@ -29,6 +29,11 @@ public class GameCollectionException extends Exception {
 		return "Column number with "+column+" is invalid!";
 	}
 	
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public static String ColumnAlreadyFilledException(Integer column) {
+		return "Column number with "+column+" is already filled";
+	}
+	
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public static String InvalidMoveNumberException(int moveNumber) {
 		return "Move number with "+moveNumber+" is invalid!";

@@ -41,6 +41,7 @@ public class Game {
 	public Game() {
 		this.players = new ArrayList<>();
 		this.moves = new ArrayList<>();
+		this.board = new String[this.noOfRows][this.noOfColumns];
 	}
 	
 	public Game(String gameId, List<String> players, int noOfRows, int noOfColumns,

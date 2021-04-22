@@ -80,12 +80,23 @@ public class GameServiceImpl implements GameService {
 					move.setColumn(move.getColumn());
 					
 					Integer column = move.getColumn();
-					String board[][] = game.getBoard();
-					if(column < 0 || column > gameOptional.get().getNoOfColumns()) {
+					if(column <= 0 || column > gameOptional.get().getNoOfColumns()) {
 						throw new GameCollectionException(GameCollectionException.ColumnOutOfBoundException(column));
 					} else {
 						game = gameOptional.get();
 						game.getMoves().add(move);
+						String board[][] = game.getBoard();
+						int i;
+						for(i=game.getNoOfRows()-1;i>=0;i--) {
+							if(board[i][column-1] == null) {
+								board[i][column-1] = playerId;
+								game.setBoard(board);
+								break;
+							}
+						}	
+						if(i<0) {
+							throw new GameCollectionException(GameCollectionException.ColumnAlreadyFilledException(column));
+						}
 						gameRepository.save(game);
 						return move;
 					}

@@ -37,6 +37,8 @@ public class Game {
 	private String player2;
 	
 	private String[][] board;
+
+	private String lastPlayer;
 	
 	public Game() {
 		this.players = new ArrayList<>();
@@ -136,7 +138,13 @@ public class Game {
 		this.board = board;
 	}	
 	
-	
+	public String getLastPlayer() {
+		return lastPlayer;
+	}
+
+	public void setLastPlayer(String lastPlayer) {
+		this.lastPlayer = lastPlayer;
+	}
 	
 	
 }

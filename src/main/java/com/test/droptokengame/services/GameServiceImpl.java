@@ -81,7 +81,7 @@ public class GameServiceImpl implements GameService {
 					
 					Integer column = move.getColumn();
 					String board[][] = game.getBoard();
-					if(column < 0 || column > gameOptional.get().getNoOfColumns() || board[0][column] != null) {
+					if(column < 0 || column > gameOptional.get().getNoOfColumns()) {
 						throw new GameCollectionException(GameCollectionException.ColumnOutOfBoundException(column));
 					} else {
 						game = gameOptional.get();

@@ -6,7 +6,14 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.test.droptokengame.exceptions.GameCollectionException;
+import com.test.droptokengame.exceptions.ColumnAlreadyFilledException;
+import com.test.droptokengame.exceptions.ColumnOutOfBoundException;
+import com.test.droptokengame.exceptions.GameNotFoundException;
+import com.test.droptokengame.exceptions.GameNotInProgressException;
+import com.test.droptokengame.exceptions.InvalidMoveNumberException;
+import com.test.droptokengame.exceptions.InvalidPlayerTurnException;
+import com.test.droptokengame.exceptions.PlayerNotFoundException;
+import com.test.droptokengame.exceptions.SamePlayersException;
 import com.test.droptokengame.models.DeleteResponse;
 import com.test.droptokengame.models.Game;
 import com.test.droptokengame.models.GetStateOfGameResponse;
@@ -40,9 +47,9 @@ public class GameServiceImpl implements GameService {
 	
 	
 	@Override
-	public void createNewGame(Game game) throws GameCollectionException {
+	public void createNewGame(Game game) throws SamePlayersException {
 		if(game.getPlayer1().equals(game.getPlayer2())) {
-			throw new GameCollectionException(GameCollectionException.SamePlayersException());
+			throw SamePlayersException.samePlayersException();
 		}
 		game.setState(State.IN_PROGRESS);
 		game.setPlayer1(game.getPlayer1());
@@ -53,7 +60,7 @@ public class GameServiceImpl implements GameService {
 
 
 	@Override
-	public GetStateOfGameResponse getStateOfTheGame(String gameId) throws GameCollectionException {
+	public GetStateOfGameResponse getStateOfTheGame(String gameId) throws GameNotFoundException {
 		Optional<Game> gameOptional = gameRepository.findByGameId(gameId);
 		if(gameOptional.isPresent()) {
 			GetStateOfGameResponse response = new GetStateOfGameResponse();
@@ -66,13 +73,18 @@ public class GameServiceImpl implements GameService {
 			}
 			return response;
 		} else {
-			throw new GameCollectionException(GameCollectionException.GameNotFoundException(gameId));
+			throw GameNotFoundException.gameNotFound(gameId);
 		}
 	}
 	
 	@Override
-	public Move postAMove(Move move, Game game, String gameId, String playerId)
-		throws GameCollectionException {
+	public Move postAMove(Move move, String gameId, String playerId)
+		throws ColumnOutOfBoundException, 
+				ColumnAlreadyFilledException, 
+				InvalidPlayerTurnException, 
+				PlayerNotFoundException, 
+				GameNotFoundException {
+		
 			Optional<Game> gameOptional = gameRepository.findByGameId(gameId);
 			if(gameOptional.isPresent() && gameOptional.get().getState().equals(State.IN_PROGRESS)) {
 				Optional<String> player = gameRepository.findByPlayerId(playerId);
@@ -83,9 +95,9 @@ public class GameServiceImpl implements GameService {
 						
 						Integer column = move.getColumn();
 						if(column <= 0 || column > gameOptional.get().getNoOfColumns()) {
-							throw new GameCollectionException(GameCollectionException.ColumnOutOfBoundException(column));
+							throw ColumnOutOfBoundException.columnOutOfBoundException(column);
 						} else {
-								game = gameOptional.get();
+								Game game = gameOptional.get();
 								game.getMoves().add(move);
 								game.setLastPlayer(playerId);
 								
@@ -99,7 +111,7 @@ public class GameServiceImpl implements GameService {
 									}
 								}	
 								if(i<0) {
-									throw new GameCollectionException(GameCollectionException.ColumnAlreadyFilledException(column));
+									throw ColumnAlreadyFilledException.columnAlreadyFilledException(column);
 								}
 								
 								
@@ -113,20 +125,22 @@ public class GameServiceImpl implements GameService {
 						
 						
 					}else {
-						throw new GameCollectionException(GameCollectionException.InvalidPlayerTurnException(playerId));
+						throw InvalidPlayerTurnException.invalidPlayerTurnException(playerId);
 					}
 					
 				} else {
-					throw new GameCollectionException(GameCollectionException.PlayerNotFoundException(playerId));
+					throw PlayerNotFoundException.playerNotFoundException(playerId);
 				}
 			} else {
-				throw new GameCollectionException(GameCollectionException.GameNotFoundException(gameId));
+				throw GameNotFoundException.gameNotFound(gameId);
 			}
 	}
 	
 
 	@Override
-	public MoveResponse getMoveByMoveNumber(Game game, String gameId, int moveNumber) throws GameCollectionException {
+	public MoveResponse getMoveByMoveNumber(Game game, String gameId, int moveNumber) 
+			throws InvalidMoveNumberException, GameNotFoundException{
+		
 		Optional<Game> gameOptional = gameRepository.findByGameId(gameId);
 		if(gameOptional.isPresent()) {
 			if(moveNumber <= gameOptional.get().getMoves().size()) {
@@ -136,15 +150,16 @@ public class GameServiceImpl implements GameService {
 				moveResponse.setColumn(gameOptional.get().getMoves().get(moveNumber-1).getColumn());
 				return moveResponse;
 			} else {
-				throw new GameCollectionException(GameCollectionException.InvalidMoveNumberException(moveNumber));
+				throw InvalidMoveNumberException.invalidMoveNumberException(moveNumber);
 			}
 		} else {
-			throw new GameCollectionException(GameCollectionException.GameNotFoundException(gameId));
+			throw GameNotFoundException.gameNotFound(gameId);
 		}
 	}
 
 	@Override
-	public DeleteResponse deletePlayerId(Game game, String gameId, String playerId) throws GameCollectionException {
+	public DeleteResponse deletePlayerId(Game game, String gameId, String playerId) 
+			throws GameNotInProgressException, PlayerNotFoundException, GameNotFoundException {
 		Optional<Game> gameOptional = gameRepository.findByGameId(gameId);
 		if(gameOptional.isPresent()) {
 			Optional<String> player = gameRepository.findByPlayerId(playerId);
@@ -154,13 +169,13 @@ public class GameServiceImpl implements GameService {
 					gameRepository.deleteByPlayerId(playerId);
 					return response;
 				} else {
-					throw new GameCollectionException(GameCollectionException.GameNotInProgressException(gameId));
+					throw GameNotInProgressException.gameNotInProgressException(gameId);
 				}
 			}else {
-				throw new GameCollectionException(GameCollectionException.PlayerNotFoundException(playerId));
+				throw PlayerNotFoundException.playerNotFoundException(playerId);
 			}
 		} else {
-			throw new GameCollectionException(GameCollectionException.GameNotFoundException(gameId));
+			throw GameNotFoundException.gameNotFound(gameId);
 		}
 		
 	}
